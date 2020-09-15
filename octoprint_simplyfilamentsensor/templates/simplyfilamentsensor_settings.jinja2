@@ -1,12 +1,17 @@
 <h3>{{ _('SimplyFilamentSensor') }}</h3>
 <form id="simplyfilamentsensor_settings" class="form-horizontal marginTop">
     <div class="simplyfilamentsensor_normal_settings">
+        <!-- Is printing warning -->
+        <div class="alert" data-bind="visible: isPrinting()" style="">
+            You cannot change these settings while you are printing
+        </div>
+
         <!-- Pin number -->
         <div class="form-group">
             <label for="sfsPinInput">BCM pin number</label>
             <p>Which Raspberry Pi pin your sensor output is attached to (-1 disables the plugin)</p>
             <input id="sfsPinInput" min="-1" step="1" max="40" class="form-control" type="number"
-                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.pin">
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.pin, enable: !isPrinting()">
         </div>
 
         <!-- Sensor to ground or 3.3v -->
@@ -14,7 +19,7 @@
             <label for="sfsPowerInput">Sensor is connected to</label>
             <p>Input terminal of the sensor (switch) needs to be connected to ground or 3.3 V</p>
             <select id="sfsPowerInput" class="form-control"
-                    data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.type">
+                    data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.type, enable: !isPrinting()">
                 <option value=0>{{ _('Ground') }}</option>
                 <option value=1>{{ _('3.3V') }}</option>
             </select>
@@ -23,7 +28,8 @@
         <!-- Reverse -->
         <div class="form-group">
             <div class="form-check">
-                <input id="sfsReverse" data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.switch"
+                <input id="sfsReverse"
+                       data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.switch, enable: !isPrinting()"
                        class="form-check-input" type="checkbox" value="true">
                 <label class="form-check-label" for="sfsReverse">
                     Reverse
@@ -36,9 +42,12 @@
         <div class="form-group">
             <label for="sfsGcode">
                 Out of filament GCODE
-                <i class="icon icon-info-sign" title="GCODE to be executed when the printer runs out of filament. One GCODE per. line" data-toggle="tooltip"></i>
+                <i class="icon icon-info-sign"
+                   title="GCODE to be executed when the printer runs out of filament. One GCODE per. line"
+                   data-toggle="tooltip"></i>
             </label>
-            <textarea id="sfsGcode" rows="4" class="form-control" data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.no_filament_gcode"></textarea>
+            <textarea id="sfsGcode" rows="4" class="form-control"
+                      data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.no_filament_gcode, enable: !isPrinting()"></textarea>
         </div>
 
         <!-- Bounce time -->
@@ -48,7 +57,7 @@
                 <i class="icon icon-info-sign" title="Explanation of what bounce time is" data-toggle="tooltip"></i>
             </label>
             <input id="sfsBouncetime" min="0" class="form-control" type="number"
-                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.bouncetime">
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.bouncetime, enable: !isPrinting()">
         </div>
 
         <!-- Sleep time -->
@@ -60,14 +69,14 @@
                    data-toggle="tooltip"></i>
             </label>
             <input id="sfsSleeptime" min="0" max="60" class="form-control" type="number"
-                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.sleep">
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.sleep, enable: !isPrinting()">
         </div>
 
         <div>
             <table class="marginTop">
                 <tr>
                     <td>
-                        <input type="button" class="btn" data-bind="click: testSensor" value="Test sensor">
+                        <input type="button" class="btn" data-bind="click: testSensor, enable: !isPrinting()" value="Test sensor">
                     </td>
                     <td style="padding-left: 10px">
                         <p id="sensor-test-result-text" data-bind="text: testSensorResult" style="display: inline;"></p>

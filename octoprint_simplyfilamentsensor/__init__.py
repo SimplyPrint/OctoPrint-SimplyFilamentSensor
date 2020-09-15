@@ -1,6 +1,8 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import faulthandler
+
 import octoprint.plugin
 import re
 
@@ -10,14 +12,15 @@ from time import sleep
 import RPi.GPIO as GPIO
 import flask
 
+faulthandler.enable()
+
 
 class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                                  octoprint.plugin.EventHandlerPlugin,
                                  octoprint.plugin.TemplatePlugin,
                                  octoprint.plugin.SettingsPlugin,
                                  octoprint.plugin.SimpleApiPlugin,
-                                 octoprint.plugin.AssetPlugin,
-                                 octoprint.plugin.BlueprintPlugin):
+                                 octoprint.plugin.AssetPlugin):
 
     def initialize(self):
         self._logger.info("Running RPi.GPIO version '{0}'".format(GPIO.VERSION))
@@ -25,12 +28,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             raise Exception("RPi.GPIO must be greater than 0.6")
         GPIO.setwarnings(True)  # Disable GPIO warnings
 
-    @octoprint.plugin.BlueprintPlugin.route("/status", methods=["GET"])
-    def check_status(self):
-        status = "-1"
-        if self.sensor_enabled():
-            status = "0" if self.no_filament() else "1"
-        return jsonify(status=status)
+    # Get settings
 
     @property
     def pin(self):
@@ -64,6 +62,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
     def send_gcode_only_once(self):
         return self._settings.get_boolean(["send_gcode_only_once"])
 
+    # Set up GPIO for sensor
     def _setup_sensor(self):
         if self.sensor_enabled():
             self._logger.info("Setting up sensor.")
@@ -187,6 +186,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                 else:
                     the_type = GPIO.FALLING
 
+                self._send_ui_popup("ADDED EVENT!")
+
                 GPIO.add_event_detect(
                     self.pin, the_type,
                     callback=self.sensor_callback,
@@ -204,6 +205,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
 
     def sensor_callback(self, _):
         sleep(self.sleeptime)
+
+        self._send_ui_popup("Sensor callback triggered!")
 
         # If we have previously triggered a state change we are still out
         # of filament. Log it and wait on a print resume or a new print job.
