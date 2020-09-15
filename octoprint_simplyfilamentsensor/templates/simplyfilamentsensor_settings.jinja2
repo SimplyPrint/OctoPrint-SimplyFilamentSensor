@@ -1,0 +1,114 @@
+<h3>{{ _('SimplyFilamentSensor') }}</h3>
+<form id="simplyfilamentsensor_settings" class="form-horizontal marginTop">
+    <div class="simplyfilamentsensor_normal_settings">
+        <!-- Pin number -->
+        <div class="form-group">
+            <label for="sfsPinInput">BCM pin number</label>
+            <p>Which Raspberry Pi pin your sensor output is attached to (-1 disables the plugin)</p>
+            <input id="sfsPinInput" min="-1" step="1" max="40" class="form-control" type="number"
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.pin">
+        </div>
+
+        <!-- Sensor to ground or 3.3v -->
+        <div class="form-group">
+            <label for="sfsPowerInput">Sensor is connected to</label>
+            <p>Input terminal of the sensor (switch) needs to be connected to ground or 3.3 V</p>
+            <select id="sfsPowerInput" class="form-control"
+                    data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.type">
+                <option value=0>{{ _('Ground') }}</option>
+                <option value=1>{{ _('3.3V') }}</option>
+            </select>
+        </div>
+
+        <!-- Reverse -->
+        <div class="form-group">
+            <div class="form-check">
+                <input id="sfsReverse" data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.switch"
+                       class="form-check-input" type="checkbox" value="true">
+                <label class="form-check-label" for="sfsReverse">
+                    Reverse
+                    <i class="icon icon-info-sign" title="Explanation of what reverse is" data-toggle="tooltip"></i>
+                </label>
+            </div>
+        </div>
+
+        <!-- GCODE on filament runout -->
+        <div class="form-group">
+            <label for="sfsGcode">
+                Out of filament GCODE
+                <i class="icon icon-info-sign" title="GCODE to be executed when the printer runs out of filament. One GCODE per. line" data-toggle="tooltip"></i>
+            </label>
+            <textarea id="sfsGcode" rows="4" class="form-control" data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.no_filament_gcode"></textarea>
+        </div>
+
+        <!-- Bounce time -->
+        <div class="form-group">
+            <label for="sfsBouncetime">
+                Bounce time (seconds)
+                <i class="icon icon-info-sign" title="Explanation of what bounce time is" data-toggle="tooltip"></i>
+            </label>
+            <input id="sfsBouncetime" min="0" class="form-control" type="number"
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.bouncetime">
+        </div>
+
+        <!-- Sleep time -->
+        <div class="form-group">
+            <label for="sfsSleeptime">
+                Wait before acting (seconds)
+                <i class="icon icon-info-sign"
+                   title="After filament runout is triggered, wait X seconds before checking again, and pausing print if it's still run out"
+                   data-toggle="tooltip"></i>
+            </label>
+            <input id="sfsSleeptime" min="0" max="60" class="form-control" type="number"
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.sleep">
+        </div>
+
+        <div>
+            <table class="marginTop">
+                <tr>
+                    <td>
+                        <input type="button" class="btn" data-bind="click: testSensor" value="Test sensor">
+                    </td>
+                    <td style="padding-left: 10px">
+                        <p id="sensor-test-result-text" data-bind="text: testSensorResult" style="display: inline;"></p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="control-group marginTop">
+        <div class="alert-danger">
+            <span class="icon-warning-sign"></span>
+            <span class="octoFontFamily iconIndent">Warning! Never connect the sensor to 5V! 5V could destroy GPIO of your Raspberry Pi</span>
+        </div>
+
+        <!-- Advanced settings -->
+        {#<div class="simplyfilamentsensor_advanced_settings">
+            <div id="simplyfilamentsensorAdvancedAccordion">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse"
+                                    data-target="#simplyFilamentSensorAdvancedSettingsCollapse" aria-expanded="true">
+                                Advanced settings
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="simplyFilamentSensorAdvancedSettingsCollapse" class="collapse show"
+                         data-parent="#simplyfilamentsensorAdvancedAccordion">
+                        <div class="card-body">
+                            Advanced settings goes here!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>#}
+        <!-- end advanced settings -->
+
+        <div style="font-size: 11px">
+            For more information click <a href="https://github.com/LuckyX182/Filament_sensor_simplified">here</a>
+        </div>
+    </div>
+</form>
