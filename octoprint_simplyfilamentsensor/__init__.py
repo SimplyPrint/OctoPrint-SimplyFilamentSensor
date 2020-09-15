@@ -158,6 +158,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             pud_type) + "], the return [" + str(the_bool) + "], switched = " + str(
             self.switch) + "\nSo the line is; " + str(line)
 
+        self._send_ui_popup(msg)
         self._logger.info(msg)
         self._logger.debug(msg)
 
