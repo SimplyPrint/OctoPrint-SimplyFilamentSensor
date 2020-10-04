@@ -14,17 +14,17 @@ plugin_package = "octoprint_simplyfilamentsensor"
 plugin_name = "SimplyFilamentSensor"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.0.5"
+plugin_version = "0.0.7"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = """Simple plugin reacting to filament sensor, issuing M600 (filament change) command to printer"""
+plugin_description = """A filament sensor plugin that works"""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "SimplyPrint"
 
 # The plugin's author's mail address.
-plugin_author_email = "contact@simplyprint.dk"
+plugin_author_email = "albert@simplyprint.dk"
 
 # The plugin's homepage URL. Can be overwritten within OctoPrint's internal data via __plugin_url__ in the plugin module
 plugin_url = "https://github.com/SimplyPrint/OctoPrint-SimplyFilamentSensor"

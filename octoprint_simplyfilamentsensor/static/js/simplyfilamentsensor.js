@@ -18,6 +18,8 @@ $(function () {
         }
 
         self.testSensor = function () {
+            $("#sfsTestButton").prop("disabled", true);
+
             $.ajax({
                     url: "/api/plugin/simplyfilamentsensor",
                     type: "post",
@@ -26,9 +28,9 @@ $(function () {
                     headers: {"X-Api-Key": UI_API_KEY},
                     data: JSON.stringify({
                         "command": "testSensor",
-                        "pin": $("#sfsPinInput").val(),
-                        "power": $("#sfsPowerInput").val(),
-                        "bouncetime": $("#sfsBouncetime").val(),
+                        "pin": parseInt($("#sfsPinInput").val()),
+                        "power": parseInt($("#sfsPowerInput").val()),
+                        "bouncetime": parseInt($("#sfsBouncetime").val()),
                         "reverse": $("#sfsReverse").is(":checked"),
                     }),
                     statusCode: {
@@ -57,6 +59,11 @@ $(function () {
                             $("#sensor-test-result-text").css("color", "red");
                             self.testSensorResult("Fail! Sensor open (triggered).")
                         }
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            $("#sfsTestButton").prop("disabled", false);
+                        }, 800);
                     }
                 }
             );

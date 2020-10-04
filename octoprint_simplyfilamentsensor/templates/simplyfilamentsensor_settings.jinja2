@@ -48,22 +48,22 @@
         <!-- Bounce time -->
         <div class="form-group">
             <label for="sfsBouncetime">
-                Bounce time (seconds)
+                Bounce time (milliseconds)
                 <i class="icon icon-info-sign" title="Explanation of what bounce time is" data-toggle="tooltip"></i>
             </label>
-            <input id="sfsBouncetime" min="0" class="form-control" type="number"
-                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.bouncetime">
+            <input id="sfsBouncetime" min="0" max="15000" class="form-control" type="number"
+                   data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.bounce">
         </div>
 
         <!-- Sleep time -->
         <div class="form-group">
             <label for="sfsSleeptime">
-                Wait before acting (seconds)
+                Wait before acting (milliseconds)
                 <i class="icon icon-info-sign"
                    title="After filament runout is triggered, wait X seconds before checking again, and pausing print if it's still run out"
                    data-toggle="tooltip"></i>
             </label>
-            <input id="sfsSleeptime" min="0" max="60" class="form-control" type="number"
+            <input id="sfsSleeptime" min="0" max="5000" class="form-control" type="number"
                    data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.sleep">
         </div>
 
@@ -71,7 +71,7 @@
             <table class="marginTop">
                 <tr>
                     <td>
-                        <input type="button" class="btn" data-bind="click: testSensor" value="Test sensor">
+                        <input id="sfsTestButton" type="button" class="btn" data-bind="click: testSensor" value="Test sensor">
                     </td>
                     <td style="padding-left: 10px">
                         <p id="sensor-test-result-text" data-bind="text: testSensorResult" style="display: inline;"></p>
