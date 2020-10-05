@@ -149,7 +149,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                                                                                         msg="Settings not saved, you are trying to save pin which is already used by others"))
                         return
 
-                    GPIO.cleanup()
+                    GPIO.cleanup(self._last_setup["pin"])
                     self._last_setup = {
                         "pin": -1,
                         "pud": -1,
@@ -270,7 +270,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
 
             if self._last_setup["pin"] != selected_pin:
                 GPIO.remove_event_detect(self.pin)
-                GPIO.cleanup()
+                GPIO.cleanup(self._last_setup["pin"])
+                GPIO.cleanup(selected_pin)
                 GPIO.setmode(GPIO.BCM)
 
             # first check pins not in use already
@@ -291,7 +292,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             pin_value = GPIO.input(selected_pin)
             # reset input to pull down after read
             triggered_bool = not self.no_filament(pin_value, selected_power, reverse)
-            GPIO.cleanup()
+            # GPIO.cleanup()
 
             # Set up with saved settings again
             self._last_setup = {
@@ -306,7 +307,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         except ValueError:
             # ValueError occurs when reading from power or ground pins
             self._logger.debug("Failed filament sensor check API call")
-            GPIO.cleanup()
+            # GPIO.cleanup()
             self._last_setup = {
                 "pin": -1,
                 "pud": -1,
