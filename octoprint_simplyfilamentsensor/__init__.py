@@ -255,12 +255,15 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                                                  dict(type=type, autoClose=autoclose, msg=message))
 
     # simpleApiPlugin
-    @staticmethod
-    def get_api_commands():
-        return dict(testSensor=["pin", "power", "bouncetime", "reverse"])
+    def get_api_commands(self):
+        return dict(getState=[], testSensor=["pin", "power", "bouncetime", "reverse"])
 
     # Test check via. settings
     def on_api_command(self, command, data):
+        if command == "getState":
+            has_filament = not self.no_filament()
+            return jsonify(has_filament=has_filament)
+
         self._is_testing = True
 
         try:
