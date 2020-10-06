@@ -131,6 +131,13 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             sleep=250,
         )
 
+    def _try_clean_pin(self, pin):
+        if pin > 0:
+            try:
+                GPIO.cleanup(pin)
+            except:
+                pass
+
     def on_settings_save(self, data):
         if data.get("pin") is not None:
             pin_to_save = int(data.get("pin"))
@@ -149,7 +156,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                                                                                         msg="Settings not saved, you are trying to save pin which is already used by others"))
                         return
 
-                    GPIO.cleanup(self._last_setup["pin"])
+                    self._try_clean_pin(self._last_setup["pin"])
                     self._last_setup = {
                         "pin": -1,
                         "pud": -1,
@@ -273,8 +280,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
 
             if self._last_setup["pin"] != selected_pin:
                 GPIO.remove_event_detect(self.pin)
-                GPIO.cleanup(self._last_setup["pin"])
-                GPIO.cleanup(selected_pin)
+                self._try_clean_pin(self._last_setup["pin"])
+                self._try_clean_pin(selected_pin)
                 GPIO.setmode(GPIO.BCM)
 
             # first check pins not in use already
