@@ -63,6 +63,10 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         return int(self._settings.get(["sleep"]))
 
     @property
+    def action_on_faulty_start(self):
+        return int(self._settings.get(["action_on_faulty_start"]))
+
+    @property
     def no_filament_gcode(self):
         return str(self._settings.get(["no_filament_gcode"])).splitlines()
 
@@ -71,7 +75,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         if self.sensor_enabled():
             self._logger.info("Setting up sensor.")
 
-            GPIO.setmode(GPIO.BCM)
+            if GPIO.getmode() == -1 or GPIO.getmode() == 10:
+                GPIO.setmode(GPIO.BCM)
             self._logger.info("Filament Sensor active on GPIO Pin [%s]" % self.pin)
 
             if self.pud_type is 0:
@@ -125,9 +130,10 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             pin=-1,  # Default is no pin
             bounce=250,  # Debounce 250ms
             switch=False,  # Normally Open
-            type=0,
-            mode=0,  # Board Mode
+            type="0",
+            mode="0",  # Board Mode
             no_filament_gcode="",
+            action_on_faulty_start="0",
             sleep=250,
         )
 
@@ -146,7 +152,9 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             if pin_to_save is not -1:
                 try:
                     # before saving check if pin not used by others
-                    GPIO.setmode(GPIO.BCM)  # Has to be there - otherwise; crash
+                    if GPIO.getmode() == -1 or GPIO.getmode() == 10:
+                        GPIO.setmode(GPIO.BCM)  # Has to be there - otherwise; crash
+
                     usage = GPIO.gpio_function(pin_to_save)
                     self._logger.debug("usage on pin %s is %s" % (pin_to_save, usage))
                     if usage is not 1:
@@ -170,10 +178,9 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                         GPIO.input(pin_to_save)
                         GPIO.cleanup(pin_to_save)'''
                 except ValueError:
-                    self._logger.info(
-                        "You are trying to save pin %s which is ground/power pin or out of range" % (pin_to_save))
+                    self._logger.info("An error occurred while trying to save")
                     self._plugin_manager.send_plugin_message(self._identifier, dict(type="error", autoClose=True,
-                                                                                    msg="Settings not saved, you are trying to save pin which is ground/power pin or out of range"))
+                                                                                    msg="An error occurred while trying to save"))
                     return
 
         octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
@@ -212,10 +219,18 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
     def on_event(self, event, payload):
         # Early abort in case of out ot filament when start printing, as we
         # can't change with a cold nozzle
-        if event is Events.PRINT_STARTED and self.sensor_enabled() and self.no_filament():
-            self._event_bus.fire(Events.PLUGIN_SIMPLYFILAMENTSENSOR_NO_FILAMENT_PRINT_ON_PRINT_START)
-            self._printer.cancel_print()
-            self._send_ui_popup("Printing aborted: no filament detected!")
+        action = self.action_on_faulty_start
+
+        if action > 0:
+            if event is Events.PRINT_STARTED and self.sensor_enabled() and self.no_filament():
+                if action == 1:
+                    self._event_bus.fire(Events.PLUGIN_SIMPLYFILAMENTSENSOR_NO_FILAMENT_ON_PRINT_START_PAUSED)
+                    self._printer.pause_print()
+                    self._send_ui_popup("Print paused: no filament detected!")
+                elif action == 2:
+                    self._event_bus.fire(Events.PLUGIN_SIMPLYFILAMENTSENSOR_NO_FILAMENT_ON_PRINT_START_CANCELLED)
+                    self._printer.cancel_print()
+                    self._send_ui_popup("Print aborted: no filament detected!")
 
     def sensor_callback(self, _):
         if self._is_testing:
@@ -244,7 +259,9 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                     # Printer is currently printing - pause it
                     self.show_printer_runout_popup()
                     self._printer.pause_print()
-                    self._printer.commands(self.no_filament_gcode)
+
+                    if len(self.no_filament_gcode):
+                        self._printer.commands(self.no_filament_gcode)
                 else:
                     self._send_ui_popup("Printer ran out of filament (not while printing)", "info", True)
             else:
@@ -282,7 +299,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
                 GPIO.remove_event_detect(self.pin)
                 self._try_clean_pin(self._last_setup["pin"])
                 self._try_clean_pin(selected_pin)
-                GPIO.setmode(GPIO.BCM)
+                if GPIO.getmode() == -1 or GPIO.getmode() == 10:
+                    GPIO.setmode(GPIO.BCM)
 
             # first check pins not in use already
             usage = GPIO.gpio_function(selected_pin)
@@ -347,7 +365,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
 
     def register_custom_events(*args, **kwargs):
         return [
-            "no_filament_print_on_print_start",
+            "no_filament_on_print_start_paused",
+            "no_filament_on_print_start_cancelled",
             "filament_runout",
             "filament_loaded"
         ]

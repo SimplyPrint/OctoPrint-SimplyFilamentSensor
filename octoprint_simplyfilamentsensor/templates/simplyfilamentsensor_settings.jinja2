@@ -24,11 +24,11 @@
         <div class="form-group">
             <div class="form-check">
                 <input id="sfsReverse"
-                       data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.switch,)"
+                       data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.switch"
                        class="form-check-input" type="checkbox" value="true">
                 <label class="form-check-label" for="sfsReverse">
                     Reverse
-                    <i class="icon icon-info-sign" title="Explanation of what reverse is" data-toggle="tooltip"></i>
+                    <i class="icon icon-info-sign" title="If the sensor reports no filament when it has filament, and filament when there is none; reverse it!" data-toggle="tooltip"></i>
                 </label>
             </div>
         </div>
@@ -67,11 +67,45 @@
                    data-bind="value: settingsViewModel.settings.plugins.simplyfilamentsensor.sleep">
         </div>
 
+        <!-- Action on start of print with no filament -->
+        <div class="form-group">
+            <label>What should happen on start of print where no filament is detected??</label>
+            <div class="form-check">
+                <div>
+                    <input id="sfsFaultyStart0" name="sfs_faulty_start"
+                           data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.action_on_faulty_start"
+                           class="form-check-input" type="radio" value="0">
+                    <label class="form-check-label" for="sfsFaultyStart0">
+                        Do nothing
+                    </label>
+                </div>
+
+                <div>
+                    <input id="sfsFaultyStart1" name="sfs_faulty_start"
+                           data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.action_on_faulty_start"
+                           class="form-check-input" type="radio" value="1">
+                    <label class="form-check-label" for="sfsFaultyStart1">
+                        Cancel print
+                    </label>
+                </div>
+
+                <div>
+                    <input id="sfsFaultyStart2" name="sfs_faulty_start"
+                           data-bind="checked: settingsViewModel.settings.plugins.simplyfilamentsensor.action_on_faulty_start"
+                           class="form-check-input" type="radio" value="2">
+                    <label class="form-check-label" for="sfsFaultyStart2">
+                        Pause print
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <div>
             <table class="marginTop">
                 <tr>
                     <td>
-                        <input id="sfsTestButton" type="button" class="btn" data-bind="click: testSensor" value="Test sensor">
+                        <input id="sfsTestButton" type="button" class="btn" data-bind="click: testSensor"
+                               value="Test sensor">
                     </td>
                     <td style="padding-left: 10px">
                         <p id="sensor-test-result-text" data-bind="text: testSensorResult" style="display: inline;"></p>
@@ -111,8 +145,8 @@
         </div>#}
         <!-- end advanced settings -->
 
-        <div style="font-size: 11px">
+        <!--<div style="font-size: 11px">
             For more information click <a href="https://github.com/LuckyX182/Filament_sensor_simplified">here</a>
-        </div>
+        </div>-->
     </div>
 </form>
