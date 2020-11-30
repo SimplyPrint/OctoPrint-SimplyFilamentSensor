@@ -74,9 +74,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
     def _setup_sensor(self):
         if self.sensor_enabled():
             self._logger.info("Setting up sensor.")
-
-            if GPIO.getmode() == -1 or GPIO.getmode() == 10:
-                GPIO.setmode(GPIO.BCM)
+            self._set_pin_mode()
             self._logger.info("Filament Sensor active on GPIO Pin [%s]" % self.pin)
 
             if self.pud_type is 0:
@@ -152,8 +150,7 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             if pin_to_save is not -1:
                 try:
                     # before saving check if pin not used by others
-                    if GPIO.getmode() == -1 or GPIO.getmode() == 10:
-                        GPIO.setmode(GPIO.BCM)  # Has to be there - otherwise; crash
+                    self._set_pin_mode()
 
                     usage = GPIO.gpio_function(pin_to_save)
                     self._logger.debug("usage on pin %s is %s" % (pin_to_save, usage))
@@ -193,6 +190,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         return self.pin != -1
 
     def no_filament(self, pin_value=None, pud_type=None, reverse=None):
+        self._set_pin_mode()
+
         if self.sensor_enabled():
             if pin_value is None:
                 pin_value = GPIO.input(self.pin)
@@ -282,8 +281,16 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
     def get_api_commands(self):
         return dict(getState=[], testSensor=["pin", "power", "bouncetime", "reverse"])
 
+    def _set_pin_mode(self):
+        mode = GPIO.getmode()
+
+        if mode is None or mode == -1 or mode == 10:
+            GPIO.setmode(GPIO.BCM)
+
     # Test check via. settings
     def on_api_command(self, command, data):
+        self._set_pin_mode()
+
         if command == "getState":
             has_filament = not self.no_filament()
             return jsonify(has_filament=has_filament)
@@ -296,11 +303,14 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             reverse = bool(data.get("reverse"))
 
             if self._last_setup["pin"] != selected_pin:
-                GPIO.remove_event_detect(self.pin)
+                if self.pin > 0:
+                    try:
+                        GPIO.remove_event_detect(self.pin)
+                    except:
+                        pass
+
                 self._try_clean_pin(self._last_setup["pin"])
                 self._try_clean_pin(selected_pin)
-                if GPIO.getmode() == -1 or GPIO.getmode() == 10:
-                    GPIO.setmode(GPIO.BCM)
 
             # first check pins not in use already
             usage = GPIO.gpio_function(selected_pin)
@@ -332,9 +342,8 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             self._setup_sensor()
             self._is_testing = False
             return flask.jsonify(triggered=triggered_bool)
-        except ValueError:
+        except ValueError as e:
             # ValueError occurs when reading from power or ground pins
-            self._logger.debug("Failed filament sensor check API call")
             # GPIO.cleanup()
             self._last_setup = {
                 "pin": -1,
