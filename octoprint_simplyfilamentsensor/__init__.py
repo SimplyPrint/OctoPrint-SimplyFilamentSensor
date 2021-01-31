@@ -1,6 +1,6 @@
 # coding=utf-8
 from __future__ import absolute_import
-import faulthandler
+#import faulthandler
 import octoprint.plugin
 import re
 
@@ -10,7 +10,7 @@ from time import sleep
 import RPi.GPIO as GPIO
 import flask
 
-faulthandler.enable()
+#faulthandler.enable()
 
 
 class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
