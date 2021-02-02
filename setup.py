@@ -24,7 +24,7 @@ plugin_description = """A filament sensor plugin that works"""
 plugin_author = "SimplyPrint"
 
 # The plugin's author's mail address.
-plugin_author_email = "albert@simplyprint.dk"
+plugin_author_email = "albert@simplyprint.io"
 
 # The plugin's homepage URL. Can be overwritten within OctoPrint's internal data via __plugin_url__ in the plugin module
 plugin_url = "https://github.com/SimplyPrint/OctoPrint-SimplyFilamentSensor"
