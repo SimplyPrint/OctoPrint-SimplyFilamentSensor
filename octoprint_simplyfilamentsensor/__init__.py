@@ -380,6 +380,10 @@ class SimplyFilamentSensorPlugin(octoprint.plugin.StartupPlugin,
             "filament_loaded"
         ]
 
+    # Plugin helpers
+    def get_state(self):
+        return {"has_filament": not self.no_filament()}
+
 
 __plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
 
@@ -402,4 +406,9 @@ def __plugin_load__():
     __plugin_hooks__ = {
         "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
         "octoprint.events.register_custom_events": __plugin_implementation__.register_custom_events,
+    }
+
+    global __plugin_helpers__
+    __plugin_helpers__ = {
+        "get_status": __plugin_implementation__.get_state
     }
